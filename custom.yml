@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 
 Resources:
-  SecurityGroupEventCountCF: 
+  SecurityGroupEventCount: 
     Type: AWS::Logs::MetricFilter
     Properties: 
       LogGroupName: "aws-controltower/CloudTrailLogs"
@@ -9,15 +9,15 @@ Resources:
       MetricTransformations: 
         - 
           MetricValue: "1"
-          MetricNamespace: "CloudTrailMetricsCF"
-          MetricName: "SecurityGroupEventCountCF"
+          MetricNamespace: "CloudTrailMetrics"
+          MetricName: "SecurityGroupEventCount"
 
   SecurityGroupEventAlarm:
     Type: "AWS::CloudWatch::Alarm"
     Properties: 
-      AlarmName: "customer-dev-sec-grp-changes-detected-cf"
-      MetricName: !Ref SecurityGroupEventCountCF
-      Namespace: "CloudTrailMetricsCF"
+      AlarmName: "customer-dev-sec-grp-changes-detected"
+      MetricName: SecurityGroupEventCount
+      Namespace: "CloudTrailMetrics"
       Statistic: "Maximum"
       Period: "300"
       EvaluationPeriods: "1"
