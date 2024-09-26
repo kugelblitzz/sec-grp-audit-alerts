@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+
+Resources:
+  SecurityGroupEventCountCF: 
+    Type: AWS::Logs::MetricFilter
+    Properties: 
+      LogGroupName: "aws-controltower/CloudTrailLogs"
+      FilterPattern: "{ ($.eventName = AuthorizeSecurityGroupIngress) || ($.eventName = AuthorizeSecurityGroupEgress) || ($.eventName = RevokeSecurityGroupIngress) || ($.eventName = RevokeSecurityGroupEgress) || ($.eventName = CreateSecurityGroup) || ($.eventName = DeleteSecurityGroup) || ($.eventName = ModifySecurityGroupRules) }"
+      MetricTransformations: 
+        - 
+          MetricValue: "1"
+          MetricNamespace: "CloudTrailMetricsCF"
+          MetricName: "SecurityGroupEventCountCF"
+
+  SecurityGroupEventAlarm:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties: 
+      AlarmName: "customer-dev-sec-grp-changes-detected-cf"
+      MetricName: !Ref SecurityGroupEventCountCF
+      Namespace: "CloudTrailMetricsCF"
+      Statistic: "Maximum"
+      Period: "300"
+      EvaluationPeriods: "1"
+      Threshold: "1"
+      ComparisonOperator: "GreaterThanOrEqualToThreshold"
+      AlarmActions: 
+        - "<SNS>"
+      TreatMissingData: "notBreaching"
